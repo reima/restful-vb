@@ -82,6 +82,7 @@ class RestService {
 
   public function notFound() {
     $this->status(404);
+    $this->contentType('plain');
     return "Not found";
   }
 

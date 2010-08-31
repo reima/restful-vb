@@ -1,7 +1,6 @@
 <?php
 require_once('./rest.php');
 
-
 class MobileAPI extends RestService {
   public function postSession($params) {
     return $this->notFound();
@@ -36,8 +35,6 @@ class MobileAPI extends RestService {
     //}
   }
 }
-
-header('Content-type: text/plain');
 
 $dispatcher = new RestDispatcher(new MobileAPI());
 $dispatcher->addRoute('POST',   '/session',           'postSession');
