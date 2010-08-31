@@ -156,7 +156,7 @@ class RestDispatcher {
 
     $method = $request->method();
     $path = $request->relativePath();
-    $routed = true;
+    $routed = false;
     foreach ($this->routes as $route) {
       list($route, $function) = $route;
       if (($route_params = $route->match($method, $path)) !== false) {
