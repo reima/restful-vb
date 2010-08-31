@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine on
+
+	# if a directory or a file exists, use it directly
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteCond %{REQUEST_FILENAME} !-d
+
+	# otherwise forward it to api.php
+	RewriteRule . api.php?%{QUERY_STRING}
+	RewriteRule ^$ api.php?%{QUERY_STRING}
+</IfModule>
