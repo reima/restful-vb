@@ -86,6 +86,12 @@ class RestService {
     return "Not found";
   }
 
+  public function unauthorized() {
+    $this->status(401);
+    $this->contentType('plain');
+    return "Unauthorized";
+  }
+
   public function contentType($type, $encoding='utf-8') {
     // TODO: Output encoding
     if (isset(RestService::$mime_types[$type]))
