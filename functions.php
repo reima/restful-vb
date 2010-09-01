@@ -92,6 +92,7 @@ function fetch_threads($forumid, $perpage = 10, $page = 1) {
       WHERE t.forumid = $forumid
         AND t.visible = 1
         AND t.sticky = 1
+        AND t.open <> 10
       ORDER BY t.lastpost DESC
     ");
     while ($sticky = $db->fetch_array($stickies)) {
@@ -105,7 +106,8 @@ function fetch_threads($forumid, $perpage = 10, $page = 1) {
     FROM " . TABLE_PREFIX . "thread t
     WHERE t.forumid = $forumid
       AND t.visible = 1
-      AND t.sticky != 1
+      AND t.sticky <> 1
+      AND t.open <> 10
     ORDER BY t.lastpost DESC
     LIMIT $offset, $perpage
   ");
