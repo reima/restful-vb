@@ -17,8 +17,12 @@ function str($str, $amp = false) {
 function fetch_forum($forumid) {
   global $vbulletin;
 
-  if ($forumid == -1)
-    return array('title' => str($vbulletin->options['bbtitle']));
+  if ($forumid == -1) {
+    return array(
+      'title' => str($vbulletin->options['bbtitle']),
+      'threadcount' => 0,
+    );
+  }
 
   $foruminfo = fetch_foruminfo($forumid, false); // Don't use cache as it doesn't include threadcount
   if (!$foruminfo)
@@ -29,6 +33,7 @@ function fetch_forum($forumid) {
     'title' => str($foruminfo['title'], true),
     'description' => str($foruminfo['description'], true),
     'threadcount' => intval($foruminfo['threadcount']),
+    'replycount' => intval($foruminfo['replycount']),
   );
 }
 
@@ -42,7 +47,7 @@ function can_view_forum($forumid) {
 // @see construct_subforum_bit
 function fetch_subforum_list($parentid = -1) {
   global $vbulletin;
-  cache_ordered_forums();
+  cache_ordered_forums(1); // 1 means: also cache thread/reply counts
 
   $result = array();
 
@@ -76,6 +81,8 @@ function fetch_subforum_list($parentid = -1) {
       'id' => $forum['forumid'],
       'title' => str($forum['title'], true),
       'description' => str($forum['description'], true),
+      'threadcount' => intval($forum['threadcount']),
+      'replycount' => intval($forum['replycount']),
     );
   }
 
