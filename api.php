@@ -14,15 +14,13 @@ class MobileAPI extends RestService {
   public function getForum($params) {
     $id = isset($params['id']) ? intval($params['id']) : -1;
 
+    $foruminfo = fetch_forum($id);
     if ($id != -1) {
-      $foruminfo = fetch_forum($id);
       if (!$foruminfo)
         return $this->notFound();
 
       if (!can_view_forum($id))
         return $this->unauthorized();
-    } else {
-      $foruminfo = array();
     }
 
     $foruminfo['subforums'] = fetch_subforum_list($id);
@@ -31,10 +29,7 @@ class MobileAPI extends RestService {
     $page = isset($params['page']) ? intval($params['page']) : 1;
     $foruminfo['threads'] = fetch_threads($id, $perpage, $page);
 
-    return $this->encodeOutput(array(
-      'status' => 'ok',
-      'result' => $foruminfo)
-    );
+    return $this->encodeOutput($foruminfo);
   }
 
   public function getThread($params) {
