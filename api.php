@@ -4,11 +4,11 @@ require_once('./functions.php');
 
 class MobileAPI extends RestService {
   public function postSession($params) {
-    return $this->notFound();
+    return $this->notImplemented();
   }
 
   public function deleteSession($params) {
-    return $this->notFound();
+    return $this->notImplemented();
   }
 
   public function getForum($params) {
@@ -38,15 +38,15 @@ class MobileAPI extends RestService {
   }
 
   public function getThread($params) {
-    return $this->notFound();
+    return $this->notImplemented();
   }
 
   public function postThreadReply($params) {
-    return $this->notFound();
+    return $this->notImplemented();
   }
 
   public function postThread($params) {
-    return $this->notFound();
+    return $this->notImplemented();
   }
 
   private function encodeOutput($data) {
@@ -58,6 +58,12 @@ class MobileAPI extends RestService {
     //} else {
     //  return xml_encode($data);
     //}
+  }
+
+  private function notImplemented() {
+    $this->status(501);
+    $this->contentType('plain');
+    return 'Not implemented';
   }
 }
 
