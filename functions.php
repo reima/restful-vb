@@ -3,6 +3,17 @@ chdir('..');
 require_once('./global.php');
 require_once(DIR . '/includes/functions.php');
 
+function str($str, $amp = false) {
+  global $vbulletin;
+
+  if ($amp)
+    $str = str_replace('&amp;', '&', $str);
+
+  $charset = vB_Template_Runtime::fetchStyleVar('charset');
+  if ($charset == '') $charset ='ISO-8859-1';
+  return to_utf8($str, $charset);
+}
+
 function fetch_forum($forumid) {
   $foruminfo = fetch_foruminfo($forumid);
   if (!$foruminfo)
@@ -10,8 +21,8 @@ function fetch_forum($forumid) {
 
   return array(
     'id' => $foruminfo['forumid'],
-    'title' => utf8_encode($foruminfo['title']),
-    'description' => utf8_encode($foruminfo['description']),
+    'title' => str($foruminfo['title'], true),
+    'description' => str($foruminfo['description'], true),
   );
 }
 
@@ -57,8 +68,8 @@ function fetch_subforum_list($parentid = -1) {
     //$show['newposticon'] = ($forum['statusicon'] ? true : false);
     $result[] = array(
       'id' => $forum['forumid'],
-      'title' => utf8_encode($forum['title']),
-      'description' => utf8_encode($forum['description']),
+      'title' => str($forum['title'], true),
+      'description' => str($forum['description'], true),
     );
   }
 
@@ -107,7 +118,7 @@ function fetch_threads($forumid, $perpage = 10, $page = 1) {
   foreach ($allthreads as $thread) {
      $result[] = array(
       'id' => intval($thread['threadid']),
-      'title' => utf8_encode($thread['title']),
+      'title' => str($thread['title'], true),
       'replycount' => intval($thread['replycount']),
       'sticky' => $thread['sticky'] ? true : false,
     );
