@@ -159,25 +159,34 @@ class RestDispatcher {
 
   public function dispatch() {
     $request = new RestRequest();
-    $this->service->setRequest($request);
 
+    if (($route = $this->findMatchingRoute($request)) === false) {
+      echo $this->service->notFound();
+      return false;
+    }
+
+    list($route, $function, $route_params) = $route;
+    $params = array_merge($request->params(), $route_params);
+
+    $this->service->setRequest($request);
+    $result = $this->service->$function($params);
+
+    if (!$request->isHead())
+      echo $result;
+
+    return true;
+  }
+
+  private function findMatchingRoute(RestRequest $request) {
     $method = $request->method();
     $path = $request->relativePath();
-    $routed = false;
     foreach ($this->routes as $route) {
       list($route, $function) = $route;
       if (($route_params = $route->match($method, $path)) !== false) {
-        $routed = true;
-        $params = array_merge($request->params(), $route_params);
-        $result = $this->service->$function($params);
-        if (!$request->isHead())
-          echo $result;
-        break;
+        return array($route, $function, $route_params);
       }
     }
-
-    if (!$routed)
-      echo $this->service->notFound();
+    return false;
   }
 }
 
