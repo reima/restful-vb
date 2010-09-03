@@ -61,12 +61,6 @@ class MobileAPI extends RestService {
     //  return xml_encode($data);
     //}
   }
-
-  private function notImplemented() {
-    $this->status(501);
-    $this->contentType('plain');
-    return 'Not implemented';
-  }
 }
 
 $dispatcher = new RestDispatcher(new MobileAPI());
