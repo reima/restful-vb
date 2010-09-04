@@ -3,25 +3,34 @@ require_once('./rest.php');
 require_once('./functions.php');
 
 class MobileAPI extends RestService {
+  public function getSession($params) {
+    return $this->encodeOutput(get_userinfo());
+  }
+
   public function postSession($params) {
-    return $this->notImplemented();
+    $userinfo = login($params['username'], $params['password']);
+    if ($userinfo === false)
+      return $this->unauthorized();
+
+    $this->status(201); // 201 Created
+    return $this->encodeOutput($userinfo);
   }
 
   public function deleteSession($params) {
-    return $this->notImplemented();
+    return $this->encodeOutput(logout());
   }
 
   public function getForum($params) {
     $id = isset($params['id']) ? intval($params['id']) : -1;
-
     if (!isset($params['mode'])) $params['mode'] = 'all';
+
     $foruminfo = fetch_forum($id);
     if ($id != -1) {
       if (!$foruminfo)
         return $this->notFound();
 
       if (!can_view_forum($id))
-        return $this->unauthorized();
+        return $this->notAllowed();
     }
 
     if ($params['mode'] != 'all')
@@ -52,6 +61,7 @@ class MobileAPI extends RestService {
   }
 
   private function encodeOutput($data) {
+    shutdown();
     $this->contentType('json');
     return json_encode($data);
     // Something like this:
@@ -64,6 +74,7 @@ class MobileAPI extends RestService {
 }
 
 $dispatcher = new RestDispatcher(new MobileAPI());
+$dispatcher->addRoute('GET',    '/session',           'getSession');
 $dispatcher->addRoute('POST',   '/session',           'postSession');
 $dispatcher->addRoute('DELETE', '/session',           'deleteSession');
 $dispatcher->addRoute('GET',    '/forum',             'getForum');

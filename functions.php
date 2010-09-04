@@ -1,7 +1,12 @@
 <?php
+// No cookies whatsoever
+define('NOCOOKIES', 1);
+$_COOKIE = array();
+
 chdir('..');
 require_once('./global.php');
 require_once(DIR . '/includes/functions.php');
+require_once(DIR . '/includes/functions_login.php');
 
 function str($str, $amp = false) {
   global $vbulletin;
@@ -24,7 +29,8 @@ function fetch_forum($forumid) {
     );
   }
 
-  $foruminfo = fetch_foruminfo($forumid, false); // Don't use cache as it doesn't include threadcount
+  // Don't use cache as it doesn't include threadcount by default
+  $foruminfo = fetch_foruminfo($forumid, false);
   if (!$foruminfo)
     return false;
 
@@ -140,6 +146,34 @@ function fetch_threads($forumid, $perpage = 10, $page = 1) {
   }
 
   return $result;
+}
+
+function login($username, $password) {
+  global $vbulletin;
+  if (verify_authentication($username, $password, '', '', '', false)) {
+    process_new_login('', '', '');
+    return get_userinfo();
+  } else {
+    return false;
+  }
+}
+
+function logout() {
+  process_logout();
+  return get_userinfo();
+}
+
+function get_userinfo() {
+  global $vbulletin;
+  return array(
+    'id' => intval($vbulletin->userinfo['userid']),
+    'name' => str($vbulletin->userinfo['username']),
+    's' => str($vbulletin->session->vars['dbsessionhash']),
+  );
+}
+
+function shutdown() {
+  exec_shut_down(); // Save session, close DB etc.
 }
 
 ?>

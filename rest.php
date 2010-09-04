@@ -92,6 +92,13 @@ class RestService {
     return "Unauthorized";
   }
 
+  public function notAllowed() {
+    $this->status(405);
+    $this->contentType('plain');
+    return "Not allowed";
+  }
+
+
   public function notImplemented() {
     $this->status(501);
     $this->contentType('plain');
