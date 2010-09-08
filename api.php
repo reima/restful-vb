@@ -29,7 +29,7 @@ class MobileAPI extends RestService {
       if (!$foruminfo)
         return $this->notFound();
 
-      if (!can_view_forum($id))
+      if (!can_view_forum($foruminfo))
         return $this->notAllowed();
     }
 
@@ -49,7 +49,26 @@ class MobileAPI extends RestService {
   }
 
   public function getThread($params) {
-    return $this->notImplemented();
+    $id = isset($params['id']) ? intval($params['id']) : -1;
+    if (!isset($params['mode'])) $params['mode'] = 'all';
+
+    $threadinfo = fetch_thread($id);
+    if (!$threadinfo)
+      return $this->notFound();
+
+    if (!can_view_thread($threadinfo))
+      return $this->notAllowed();
+
+    if ($params['mode'] != 'all')
+      $threadinfo = array();
+
+    if (in_array($params['mode'], array('posts', 'all'))) {
+      $perpage = isset($params['perpage']) ? intval($params['perpage']) : 10;
+      $page = isset($params['page']) ? intval($params['page']) : 1;
+      $threadinfo['posts'] = fetch_posts($id, $perpage, $page);
+    }
+
+    return $this->encodeOutput($threadinfo);
   }
 
   public function postThreadReply($params) {

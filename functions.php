@@ -43,11 +43,13 @@ function fetch_forum($forumid) {
   );
 }
 
-function can_view_forum($forumid) {
+function can_view_forum($foruminfo) {
   global $vbulletin;
 
-  $forumperms = fetch_permissions($forumid);
+  $forumperms = fetch_permissions($foruminfo['forumid']);
   return ($forumperms & $vbulletin->bf_ugp_forumpermissions['canview']);
+
+  // TODO: Forum password?
 }
 
 // @see construct_subforum_bit
@@ -146,6 +148,70 @@ function fetch_threads($forumid, $perpage = 10, $page = 1) {
   }
 
   return $result;
+}
+
+function fetch_thread($threadid) {
+  global $vbulletin;
+
+  $threadinfo = fetch_threadinfo($threadid);
+  if (!$threadinfo)
+    return false;
+
+  return array(
+    'id' => intval($threadinfo['threadid']),
+    'forumid' => intval($threadinfo['forumid']),
+    'title' => str($threadinfo['title']),
+    'replycount' => intval($threadinfo['replycount']),
+    'open' => $threadinfo['open'] == 1,
+  );
+}
+
+function fetch_posts($threadid, $perpage = 10, $page = 1) {
+  global $db;
+
+  $threadid = intval($threadid);
+  $perpage = intval($perpage);
+  $page = intval($page);
+
+  if ($page < 1) $page = 1;
+  $offset = ($page - 1) * $perpage;
+
+  $posts = $db->query_read("
+    SELECT p.username, p.pagetext
+    FROM " . TABLE_PREFIX . "post AS p
+    LEFT JOIN " . TABLE_PREFIX . "user AS u ON (u.userid = p.userid)
+    WHERE p.threadid = $threadid
+      AND p.visible = 1
+    ORDER BY p.dateline
+    LIMIT $offset, $perpage
+  ");
+
+  $result = array();
+  while ($post = $db->fetch_array($posts)) {
+    $result[] = $post;
+  }
+
+  return $result;
+}
+
+function can_view_thread($threadinfo) {
+  // @see showthread.php
+  global $vbulletin;
+
+  $forumperms = fetch_permissions($threadinfo['forumid']);
+  if (!($forumperms & $vbulletin->bf_ugp_forumpermissions['canview']))
+    return false;
+
+  if (!($forumperms & $vbulletin->bf_ugp_forumpermissions['canviewthreads']))
+    return false;
+
+  if (!($forumperms & $vbulletin->bf_ugp_forumpermissions['canviewothers']) AND
+      ($thread['postuserid'] != $vbulletin->userinfo['userid'] OR
+       $vbulletin->userinfo['userid'] == 0))
+    return false;
+
+  // TODO: Forum password?
+  return true;
 }
 
 function login($username, $password) {
